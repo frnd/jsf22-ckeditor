@@ -1,1 +1,5 @@
+Example of how to use CkEditor (http://ckeditor.com/) in a jsf 2.2 project. 
+
+In this project I'm using the new ckedit inline and Onmifaces to send the edited document to the server.
+
 This file was created by IntelliJ IDEA 12.1.4 for binding GitHub repository
