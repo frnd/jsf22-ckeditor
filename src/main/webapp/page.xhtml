@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:f="http://xmlns.jcp.org/jsf/core"
+        xmlns:h="http://xmlns.jcp.org/jsf/html"
+        xmlns:o="http://omnifaces.org/ui"
+        xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<f:metadata>
+    <f:viewParam
+            name="id"
+            value="#{pageController.selectedId}"/>
+    <f:viewAction action="#{pageController.loadPage}"/>
+</f:metadata>
+
+<h:head>
+    <title>
+        <h:outputText value="#{pageController.selectedPage.title}"/></title>
+    <script src="ckeditor/ckeditor.js"></script>
+    <script>
+        // This code is generally not necessary, but it is here to demonstrate
+        // how to customize specific editor instances on the fly. This fits well
+        // this demo because we have editable elements (like headers) that
+        // require less features.
+
+        // The "instanceCreated" event is fired for every editor instance created.
+        CKEDITOR.on('instanceCreated', function (event) {
+            var editor = event.editor, element = editor.element;
+
+            // Customize editors for headers and tag list.
+            // These editors don't need features like smileys, templates, iframes etc.
+            if (element.is('h1', 'h2', 'h3')
+                    || element.getAttribute('id') == 'taglist') {
+                // Customize the editor configurations on "configLoaded" event,
+                // which is fired after the configuration file loading and
+                // execution. This makes it possible to change the
+                // configurations before the editor initialization takes place.
+                editor.on('configLoaded', function () {
+
+                    // Remove unnecessary plugins to make the editor simpler.
+                    editor.config.removePlugins = 'colorbutton,find,flash,font,'
+                            + 'forms,iframe,image,newpage,removeformat,'
+                            + 'smiley,specialchar,stylescombo,templates';
+
+                    // Rearrange the layout of the toolbar.
+                    editor.config.toolbarGroups = [
+                        {
+                            name: 'editing',
+                            groups: [ 'basicstyles', 'links' ]
+                        },
+                        {
+                            name: 'undo'
+                        },
+                        {
+                            name: 'clipboard',
+                            groups: [ 'selection', 'clipboard' ]
+                        },
+                        {
+                            name: 'about'
+                        }
+                    ];
+                });
+            }
+        });
+    </script>
+    <link
+            href="ckeditor/samples/sample.css"
+            rel="stylesheet"/>
+</h:head>
+<h:body>
+
+    <h:panelGroup id="post">
+
+        <h2
+                id="title"
+                contenteditable="true">
+            <h:outputText value="#{pageController.selectedPage.title}" escape="false"/></h2>
+
+        <h3
+                id="subtitle"
+                contenteditable="true"><h:outputText value="#{pageController.selectedPage.subtitle}" escape="false"/>
+        </h3>
+
+        <div
+                id="body"
+                contenteditable="true">
+            <h:outputText value="#{pageController.selectedPage.body}" escape="false"/>
+        </div>
+    </h:panelGroup>
+
+    <button onclick="processSubmit()">Guardar</button>
+
+    <h:form>
+        <ui:fragment rendered="#{pageController.saved}">
+            <h:outputText value="Saved"/>
+        </ui:fragment>
+        <o:commandScript
+                name="saveEdit"
+                actionListener="#{pageController.saveEdit}"
+                render=":post @form"/>
+    </h:form>
+
+    <script>
+        var processSubmit = function () {
+            var title = CKEDITOR.instances.title.getData();
+            var subtitle = CKEDITOR.instances.subtitle.getData();
+            var body = CKEDITOR.instances.body.getData();
+
+            saveEdit({
+                title: title,
+                subtitle: subtitle,
+                body: body
+            });
+        }
+    </script>
+</h:body>
+</html>
